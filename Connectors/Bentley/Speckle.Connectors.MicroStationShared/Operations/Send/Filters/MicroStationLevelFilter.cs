@@ -1,3 +1,4 @@
+using Bentley.DgnPlatformNET;
 using Speckle.Connectors.DUI.Models.Card.SendFilter;
 using Speckle.Connectors.DUI.Utils;
 using Speckle.Connectors.MicroStation.Plugin;
@@ -23,7 +24,7 @@ public class MicroStationLevelFilter : DiscriminatedObject, ISendFilter
 
   public List<string> RefreshObjectIds()
   {
-    var model = MsApp.ActiveModel;
+    var model = MsApp.Model;
     if (model == null || SelectedLevelNames.Count == 0)
     {
       return [];
@@ -33,13 +34,29 @@ public class MicroStationLevelFilter : DiscriminatedObject, ISendFilter
     var selectedNames = new HashSet<string>(SelectedLevelNames, StringComparer.OrdinalIgnoreCase);
 
     var ids = new List<string>();
-    var enumerator = model.GraphicalElementCache.Scan(new MSIDGN.ElementScanCriteriaClass());
-    while (enumerator.MoveNext())
+    var elems = model.GetGraphicElements();
+    foreach (MgdElement elem in elems)
     {
-      var element = enumerator.Current;
-      if (element != null && selectedNames.Contains(element.Level?.Name ?? string.Empty))
+      if (elem == null)
       {
-        ids.Add(element.ID.ToString());
+        continue;
+      }
+
+      using var elePropGetter = new ElementPropertiesGetter(elem);
+      var levelId = elePropGetter.Level;
+
+      // CellHeaderElement do not have a level and we will get LevelId = 0, but its children can be on levels. We will skip the CellHeaderElement for now, and evaluate its children instead later.
+      if (levelId == 0)
+      {
+        continue;
+      }
+
+      var levelCache = model.GetFileLevelCache();
+      var levelHandle = levelCache.GetLevel(levelId, true);
+
+      if (selectedNames.Contains(levelHandle.Name))
+      {
+        ids.Add(elem.ElementId.ToString());
       }
     }
 
@@ -52,18 +69,21 @@ public class MicroStationLevelFilter : DiscriminatedObject, ISendFilter
   /// </summary>
   public List<string> GetAvailableLevelNames()
   {
-    var model = MsApp.ActiveModel;
+    var model = MsApp.Model;
     if (model == null)
     {
       return [];
     }
 
     var names = new List<string>();
-    foreach (MSIDGN.Level level in model.Levels)
+
+    var levelCache = model.GetFileLevelCache();
+
+    foreach (var levelHandle in levelCache.GetHandles())
     {
-      if (!string.IsNullOrEmpty(level.Name))
+      if (!string.IsNullOrEmpty(levelHandle.Name))
       {
-        names.Add(level.Name);
+        names.Add(levelHandle.Name);
       }
     }
 

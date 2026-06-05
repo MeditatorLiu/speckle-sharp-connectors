@@ -23,6 +23,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Reference Include="ustation">
+      <HintPath>$(MicroStation2026Dir)ustation.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <!-- MicroStation 2026 managed host base class (ManagedHost, DgnPlatformNET) -->
     <Reference Include="Bentley.DgnPlatformNET">
       <HintPath>$(MicroStation2026Dir)Bentley.DgnPlatformNET.dll</HintPath>

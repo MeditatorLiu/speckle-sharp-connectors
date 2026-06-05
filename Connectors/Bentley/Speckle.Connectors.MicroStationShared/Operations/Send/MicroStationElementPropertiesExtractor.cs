@@ -15,39 +15,39 @@ namespace Speckle.Connectors.MicroStation.Operations.Send;
 /// </summary>
 internal static class MicroStationElementPropertiesExtractor
 {
-  public static Dictionary<string, object?> Extract(Element element)
+  public static Dictionary<string, object?> Extract(MgdElement element)
   {
     var properties = new Dictionary<string, object?>(capacity: 16)
     {
-      ["elementType"] = element.Type.ToString(),
-      ["elementId"] = element.ID.ToString(),
-      ["color"] = SafeRead(() => element.Color),
-      ["lineWeight"] = SafeRead(() => element.LineWeight),
-      ["displayPriority"] = SafeRead(() => element.DisplayPriority),
-      ["transparency"] = SafeRead(() => element.Transparency),
-      ["isLocked"] = SafeRead(() => element.IsLocked),
-      ["isModified"] = SafeRead(() => element.IsModified),
-      ["isNew"] = SafeRead(() => element.IsNew),
+      ["elementType"] = element.ElementType.ToString(),
+      ["elementId"] = element.ElementId.ToString(),
+      //["color"] = SafeRead(() => element.Color),
+      //["lineWeight"] = SafeRead(() => element.LineWeight),
+      //["displayPriority"] = SafeRead(() => element.DisplayPriority),
+      //["transparency"] = SafeRead(() => element.Transparency),
+      ////["isLocked"] = SafeRead(() => element.IsEffectivelyLocked(false,false)),
+      //["isModified"] = SafeRead(() => element.IsModified),
+      //["isNew"] = SafeRead(() => element.IsNew),
     };
 
-    var levelName = SafeRead(() => element.Level?.Name);
-    if (!string.IsNullOrEmpty(levelName))
-    {
-      properties["level"] = levelName;
-    }
+    //var levelName = SafeRead(() => element.Level?.Name);
+    //if (!string.IsNullOrEmpty(levelName))
+    //{
+    //  properties["level"] = levelName;
+    //}
 
-    var styleName = SafeRead(() => element.LineStyle?.Name);
-    if (!string.IsNullOrEmpty(styleName))
-    {
-      properties["lineStyle"] = styleName;
-    }
+    //var styleName = SafeRead(() => element.LineStyle?.Name);
+    //if (!string.IsNullOrEmpty(styleName))
+    //{
+    //  properties["lineStyle"] = styleName;
+    //}
 
-    var url = SafeRead(() => element.URL);
-    if (!string.IsNullOrEmpty(url))
-    {
-      properties["url"] = url;
-      properties["urlTitle"] = SafeRead(() => element.URLTitle);
-    }
+    //var url = SafeRead(() => element.URL);
+    //if (!string.IsNullOrEmpty(url))
+    //{
+    //  properties["url"] = url;
+    //  properties["urlTitle"] = SafeRead(() => element.URLTitle);
+    //}
 
     return properties;
   }

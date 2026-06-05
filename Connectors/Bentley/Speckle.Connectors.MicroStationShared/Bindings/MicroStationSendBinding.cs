@@ -65,13 +65,7 @@ public class MicroStationSendBinding : ISendBinding
 
   private (string? fileName, long? fileSizeBytes) GetFileInfo()
   {
-    var app = MsApp.TryGetInstance();
-    if (app?.HasActiveDesignFile != true)
-    {
-      return (null, null);
-    }
-
-    var path = app.ActiveDesignFile.FullName;
+    var path = MsApp.File.GetFileName();
     if (!File.Exists(path))
     {
       return (null, null);
@@ -112,30 +106,19 @@ public class MicroStationSendBinding : ISendBinding
 
     onOperationProgressed.Report(new CardProgress("Getting elements...", null));
 
-    var model = MsApp.ActiveModel ?? throw new InvalidOperationException("No active MicroStation model.");
+    var model = MsApp.Model ?? throw new InvalidOperationException("No active MicroStation model.");
     var idSet = new HashSet<string>(selectedIds);
     var elements = new List<MgdElement>(idSet.Count);
 
-    var enumerator = model.GraphicalElementCache.Scan(new MSIDGN.ElementScanCriteriaClass());
-    while (enumerator.MoveNext())
+    var elems = model.GetGraphicElements();
+    foreach (MgdElement elem in elems)
     {
-      var comElement = enumerator.Current;
-      if (comElement == null || !idSet.Contains(comElement.ID.ToString()))
+      if (!idSet.Contains(elem.ElementId.ToString()))
       {
         continue;
       }
 
-      var refValue = comElement.MdlElementRef();
-      if (refValue == 0)
-      {
-        continue;
-      }
-
-      var mgd = MgdElement.GetFromElementRef(new IntPtr(refValue));
-      if (mgd != null)
-      {
-        elements.Add(mgd);
-      }
+      elements.Add(elem);
     }
 
     await Task.CompletedTask;

@@ -20,20 +20,19 @@ public class MicroStationEverythingFilter : DiscriminatedObject, ISendFilter
 
   public List<string> RefreshObjectIds()
   {
-    var model = MsApp.ActiveModel;
+    var model = MsApp.Model;
     if (model == null)
     {
       return [];
     }
 
     var ids = new List<string>();
-    var enumerator = model.GraphicalElementCache.Scan(new MSIDGN.ElementScanCriteriaClass());
-    while (enumerator.MoveNext())
+    var elems = model.GetGraphicElements();
+    foreach (MgdElement elem in elems)
     {
-      var element = enumerator.Current;
-      if (element != null)
+      if (elem != null)
       {
-        ids.Add(element.ID.ToString());
+        ids.Add(elem.ElementId.ToString());
       }
     }
 

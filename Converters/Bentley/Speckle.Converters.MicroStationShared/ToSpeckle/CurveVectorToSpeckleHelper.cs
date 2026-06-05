@@ -11,7 +11,6 @@ namespace Speckle.Converter.MicroStation.ToSpeckle;
 /// <para>
 /// Walks every primitive in the vector — Line / Arc / LineString / BSplineCurve / Spiral / etc. —
 /// and accumulates a flat point list. Arcs / splines / spirals are stroked into segments via
-/// the primitive's proxy MSBsplineCurve at a chord tolerance of <see cref="STROKE_TOLERANCE"/>.
 /// Adjacent primitives that share an endpoint have the duplicate vertex dropped.
 /// </para>
 /// <para>
@@ -25,7 +24,7 @@ internal static class CurveVectorToSpeckleHelper
   // Chord tolerance for stroking arcs / b-splines / spirals into polyline segments. 0.001 in
   // master units is sub-millimetre at typical drawing scales — fine visually without exploding
   // the vertex count.
-  private const double STROKE_TOLERANCE = 0.001;
+  //private const double STROKE_TOLERANCE = 0.001;
 
   public static Base ToSpeckle(CurveVector cv, string units, string applicationId)
   {
@@ -120,14 +119,14 @@ internal static class CurveVectorToSpeckleHelper
       case CurvePrimitive.CurvePrimitiveType.AkimaCurve:
       {
         // Stroke via MSBsplineCurve — every primitive type has a proxy bspline representation.
-        var bspline = prim.GetProxyBsplineCurve() ?? prim.GetBsplineCurve();
-        if (bspline == null)
-        {
-          break;
-        }
-        var strokes = new List<DPoint3d>();
-        bspline.AddStrokes(strokes, null, null, STROKE_TOLERANCE, 0.0, 0.0, false);
-        points.AddRange(strokes);
+        //var bspline = prim.GetProxyBsplineCurve() ?? prim.GetBsplineCurve();
+        //if (bspline == null)
+        //{
+        //  break;
+        //}
+        //var strokes = new List<DPoint3d>();
+        //bspline.AddStrokes(strokes, null, null, STROKE_TOLERANCE, 0.0, 0.0, false);
+        //points.AddRange(strokes);
         break;
       }
 

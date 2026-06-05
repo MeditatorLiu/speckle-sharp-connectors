@@ -1,3 +1,4 @@
+using Bentley.DgnPlatformNET;
 using Speckle.Connectors.DUI.Models.Card.SendFilter;
 using Speckle.Connectors.MicroStation.Plugin;
 
@@ -16,22 +17,22 @@ public class MicroStationSelectionFilter : DirectSelectionSendFilter
 
   public override List<string> RefreshObjectIds()
   {
-    var model = MsApp.ActiveModel;
-    if (model == null || !model.AnyElementsSelected)
+    var model = MsApp.Model;
+
+    ElementAgenda agenda = new ElementAgenda();//声明元素容器
+    SelectionSetManager.BuildAgenda(ref agenda);
+
+    if (model == null || agenda.IsEmpty)
     {
       return SelectedObjectIds;
     }
 
     // Collect elements flagged as IsHighlighted (= currently selected)
     var ids = new List<string>();
-    var enumerator = model.GraphicalElementCache.Scan(new MSIDGN.ElementScanCriteriaClass());
-    while (enumerator.MoveNext())
+
+    for (uint i = 0; i < agenda.GetCount(); i++)
     {
-      var element = enumerator.Current;
-      if (element?.IsHighlighted == true)
-      {
-        ids.Add(element.ID.ToString());
-      }
+      ids.Add(agenda.GetEntry(i).ElementId.ToString());
     }
 
     SelectedObjectIds = ids;

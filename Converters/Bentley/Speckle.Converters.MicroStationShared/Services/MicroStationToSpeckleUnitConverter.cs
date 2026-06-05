@@ -1,14 +1,15 @@
+using Bentley.DgnPlatformNET;
 using Speckle.Converters.Common;
 using Speckle.Sdk.Common.Exceptions;
 
 namespace Speckle.Converter.MicroStation.Services;
 
 /// <summary>
-/// Converts MicroStation 2026 <see cref="MeasurementUnit"/> to Speckle unit strings.
+/// Converts MicroStation 2026 <see cref="UnitDefinition"/> to Speckle unit strings.
 /// The COM <c>MeasurementUnit.Label</c> property contains an abbreviated string such as
 /// "m", "mm", "ft", "in" that we map to Speckle's canonical unit constants.
 /// </summary>
-public sealed class MicroStationToSpeckleUnitConverter : IHostToSpeckleUnitConverter<MeasurementUnit>
+public sealed class MicroStationToSpeckleUnitConverter : IHostToSpeckleUnitConverter<UnitDefinition>
 {
   private static readonly Dictionary<string, string> s_labelMap = new(StringComparer.OrdinalIgnoreCase)
   {
@@ -22,7 +23,7 @@ public sealed class MicroStationToSpeckleUnitConverter : IHostToSpeckleUnitConve
     ["mi"] = SSC.Units.Miles,
   };
 
-  public string ConvertOrThrow(MeasurementUnit hostUnit)
+  public string ConvertOrThrow(UnitDefinition hostUnit)
   {
     if (!string.IsNullOrEmpty(hostUnit.Label) && s_labelMap.TryGetValue(hostUnit.Label, out var mapped))
     {

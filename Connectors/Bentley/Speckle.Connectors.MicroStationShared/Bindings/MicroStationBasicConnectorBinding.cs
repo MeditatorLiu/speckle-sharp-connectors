@@ -26,14 +26,12 @@ public class MicroStationBasicConnectorBinding(
 
   public DocumentInfo? GetDocumentInfo()
   {
-    var app = MsApp.TryGetInstance();
-    if (app?.HasActiveDesignFile != true)
-    {
-      return null;
-    }
+    var file = MsApp.File;
+    if (file == null) {  return null; }
 
-    var fullName = app.ActiveDesignFile.FullName;
+    var fullName = file.GetFileName();
     var title = Path.GetFileNameWithoutExtension(fullName);
+
     return new DocumentInfo(fullName, title, fullName.GetHashCode().ToString());
   }
 

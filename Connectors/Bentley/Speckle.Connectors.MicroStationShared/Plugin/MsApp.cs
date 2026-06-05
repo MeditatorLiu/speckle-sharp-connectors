@@ -1,4 +1,6 @@
 using System.Runtime.InteropServices;
+using Bentley.DgnPlatformNET;
+using Bentley.MstnPlatformNET;
 
 namespace Speckle.Connectors.MicroStation.Plugin;
 
@@ -11,9 +13,7 @@ internal static class MsApp
 {
   private static Application? s_instance;
 
-  /// <summary>Gets the running MicroStation application. Throws if MicroStation is not running.</summary>
-  public static Application Instance =>
-    s_instance ??= (Application)Marshal.GetActiveObject("MicroStationDGN.Application");
+  public static Session Instance => Session.Instance;
 
   /// <summary>Returns the application instance or null if MicroStation is not available.</summary>
   public static Application? TryGetInstance()
@@ -25,7 +25,8 @@ internal static class MsApp
 
     try
     {
-      s_instance = (Application)Marshal.GetActiveObject("MicroStationDGN.Application");
+      //s_instance = (Application)Marshal.GetActiveObject("MicroStationDGN.Application");
+      s_instance = Bentley.MstnPlatformNET.InteropServices.Utilities.ComApp;
       return s_instance;
     }
     catch (COMException)
@@ -34,13 +35,6 @@ internal static class MsApp
     }
   }
 
-  /// <summary>Returns the active model or null when no file is open.</summary>
-  public static ModelReference? ActiveModel
-  {
-    get
-    {
-      var app = TryGetInstance();
-      return app?.HasActiveModelReference == true ? app.ActiveModelReference : null;
-    }
-  }
+  public static DgnFile File => Instance.GetActiveDgnFile();
+  public static DgnModel Model => Instance.GetActiveDgnModel();
 }

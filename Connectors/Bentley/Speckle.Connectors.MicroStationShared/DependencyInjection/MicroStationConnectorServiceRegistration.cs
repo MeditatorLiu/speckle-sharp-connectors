@@ -14,7 +14,6 @@ using Speckle.Connectors.MicroStation.HostApp;
 using Speckle.Connectors.MicroStation.Operations.Send;
 using Speckle.Connectors.MicroStation.Operations.Send.Filters;
 using Speckle.Connectors.Common.Caching;
-using Speckle.Connectors.MicroStation.Plugin;
 
 namespace Speckle.Connectors.MicroStation.DependencyInjection;
 
@@ -26,9 +25,6 @@ public static class MicroStationConnectorServiceRegistration
     serviceCollection.AddConnectors();
     serviceCollection.AddDUI<DefaultThreadContext, MicroStationDocumentModelStore>();
     serviceCollection.AddDUIView();
-
-    // Register the MicroStation COM Application object so converter services can receive it via DI
-    serviceCollection.AddSingleton<Application>(_ => MsApp.Instance);
 
     // Standard bindings
     serviceCollection.AddSingleton<IBinding, TestBinding>();

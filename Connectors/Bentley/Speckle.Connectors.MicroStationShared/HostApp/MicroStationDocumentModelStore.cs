@@ -94,13 +94,7 @@ public sealed class MicroStationDocumentModelStore : DocumentModelStore
 
   private static string GetStateFilePath()
   {
-    var app = MsApp.TryGetInstance();
-    if (app?.HasActiveDesignFile != true)
-    {
-      return string.Empty;
-    }
-
-    var fullName = app.ActiveDesignFile.FullName;
+    var fullName = MsApp.File.GetFileName();
     if (string.IsNullOrEmpty(fullName))
     {
       return string.Empty;

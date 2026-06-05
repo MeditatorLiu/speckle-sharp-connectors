@@ -67,6 +67,7 @@ public class MicroStationRootToSpeckleConverter(
         MgdElements.ComplexStringElement cst => complexStringConverter.Convert(cst),
         MgdElements.BSplineCurveElement bc => bsplineCurveConverter.Convert(bc),
         MgdElements.BSplineSurfaceElement bs => bsplineSurfaceConverter.Convert(bs),
+        MgdElements.BrepCellHeaderElement bc => solidConverter.Convert(bc),
         // Cell skeleton from the converter; this dispatcher fills in `elements` recursively
         // below. Keeps the leaf converter free of any back-reference to IRootToSpeckleConverter
         // (which would otherwise be a DI cycle — a cell can contain any element type).
@@ -74,6 +75,7 @@ public class MicroStationRootToSpeckleConverter(
         MgdElements.SharedCellElement sc => sharedCellConverter.Convert(sc),
         MgdElements.TextElement t => textConverter.Convert(t),
         MgdElements.SurfaceOrSolidElement so => solidConverter.Convert(so),
+        MgdElements.ExtendedElementElement ee => solidConverter.Convert(ee),
         _ => fallbackConverter.Convert(element),
       };
       result.applicationId ??= applicationId;

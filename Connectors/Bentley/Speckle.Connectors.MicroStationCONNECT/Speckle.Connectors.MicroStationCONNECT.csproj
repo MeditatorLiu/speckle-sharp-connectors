@@ -25,10 +25,7 @@
     <MicroStation2026Dir Condition="'$(MicroStation2026Dir)' == ''">$(ProgramFiles)\Bentley\MicroStation 2026\MicroStation\</MicroStation2026Dir>
   </PropertyGroup>
 
-  <Import
-    Project="..\Speckle.Connectors.MicroStationShared\Speckle.Connectors.MicroStationShared.projitems"
-    Label="Shared"
-  />
+  <Import Project="..\Speckle.Connectors.MicroStationShared\Speckle.Connectors.MicroStationShared.projitems" Label="Shared" />
 
   <ItemGroup>
     <!--
@@ -68,6 +65,11 @@
       <HintPath>$(MicroStation2026Dir)ustation.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Bentley.DgnDisplayNet, Version=1.0.0.0, Culture=neutral, PublicKeyToken=9bfed12b64a9b7df, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(MicroStation2026Dir)Bentley.DgnDisplayNet.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <!-- DgnPlatformNET is a mixed-mode DLL; not used directly by the connector — keep excluded from output. -->
     <Reference Include="Bentley.DgnPlatformNET">
       <HintPath>$(MicroStation2026Dir)Bentley.DgnPlatformNET.dll</HintPath>
@@ -76,7 +78,13 @@
     <!-- COM interop wrapper — copy to output so it's available in the deploy directory. -->
     <Reference Include="Bentley.Interop.MicroStationDGN">
       <HintPath>$(MicroStation2026Dir)Assemblies\Bentley.Interop.MicroStationDGN.dll</HintPath>
-      <Private>True</Private>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="Bentley.MicroStation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=4bf6c96a266e58d4, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(MicroStation2026Dir)Assemblies\Bentley.MicroStation.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <PackageReference Include="Microsoft.Web.WebView2" />
   </ItemGroup>

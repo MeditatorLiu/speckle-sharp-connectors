@@ -3,6 +3,7 @@ using Speckle.Connectors.Common.Builders;
 using Speckle.Connectors.Common.Caching;
 using Speckle.Connectors.Common.Conversion;
 using Speckle.Connectors.MicroStation.Plugin;
+using Speckle.Converter.MicroStation.Helpers;
 using Speckle.Converter.MicroStation.Settings;
 using Speckle.Converters.Common;
 using Speckle.Objects.Data;
@@ -11,6 +12,8 @@ using Speckle.Sdk.Logging;
 using Speckle.Sdk.Models;
 using Speckle.Sdk.Models.Collections;
 using Speckle.Sdk.Pipelines.Progress;
+
+//using Bentley.DgnPlatformNET.Elements;
 
 namespace Speckle.Connectors.MicroStation.Operations.Send;
 
@@ -26,7 +29,8 @@ public class MicroStationRootObjectBuilder(
   ISendConversionCache sendConversionCache,
   IConverterSettingsStore<MicroStationConversionSettings> converterSettings,
   ILogger<MicroStationRootObjectBuilder> logger,
-  ISdkActivityFactory activityFactory
+  ISdkActivityFactory activityFactory,
+  MicroStationContext context
 ) : IRootObjectBuilder<MgdElement>
 {
   public async Task<RootObjectBuilderResult> Build(
@@ -41,13 +45,19 @@ public class MicroStationRootObjectBuilder(
     if (elements.Count == 0)
     {
       throw new SpeckleException("No objects to convert.");
+      //var result = MessageBox.Show("Convert all Elements in the active model to send to Speckle?", "No Elements to Convert", MessageBoxButton.OKCancel, MessageBoxImage.Information);
+
+      //if (result == MessageBoxResult.Cancel)
+      //{
+      //  throw new SpeckleException("No objects to convert.");
+      //}
+
+      //elements = context.ActiveModel.GetGraphicElements().ToList();
     }
 
-    var app = MsApp.TryGetInstance();
-    var docName =
-      app?.HasActiveDesignFile == true ? System.IO.Path.GetFileName(app.ActiveDesignFile.FullName) : "Unnamed Model";
+    var docName = context.ActiveFile.GetFileName();
+    var model = context.ActiveModel;
 
-    var model = app?.ActiveModelReference;
     var units = converterSettings.Current.SpeckleUnits;
     var rootCollection = new Collection
     {
@@ -60,6 +70,11 @@ public class MicroStationRootObjectBuilder(
 
     foreach (var mgdElement in elements)
     {
+      //if (mgdElement is LineElement or ArcElement or LineStringElement or ShapeElement or ComplexShapeElement or ComplexStringElement or SurfaceOrSolidElement)
+      //{
+      //  continue;
+      //}
+
       cancellationToken.ThrowIfCancellationRequested();
 
       // ElementId is a managed struct with implicit conversions to UInt64 / Int64 (no .Value
@@ -90,11 +105,7 @@ public class MicroStationRootObjectBuilder(
           Dictionary<string, object?> properties;
           try
           {
-            var comBridge = model?.GetElementByID64((long)elementIdValue);
-            properties =
-              comBridge != null
-                ? MicroStationElementPropertiesExtractor.Extract(comBridge)
-                : new Dictionary<string, object?>();
+            properties = MicroStationElementPropertiesExtractor.Extract(mgdElement);
           }
           catch (Exception propEx) when (!propEx.IsFatal())
           {

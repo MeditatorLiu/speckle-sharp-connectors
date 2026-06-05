@@ -1,6 +1,6 @@
+using Bentley.DgnPlatformNET;
 using Speckle.Connectors.DUI.Bindings;
 using Speckle.Connectors.DUI.Bridge;
-using Speckle.Connectors.MicroStation.Plugin;
 
 namespace Speckle.Connectors.MicroStation.Bindings;
 
@@ -56,44 +56,24 @@ public class MicroStationSelectionBinding : ISelectionBinding
 
   public SelectionInfo GetSelection()
   {
-    var model = MsApp.ActiveModel;
-    if (model == null || !model.AnyElementsSelected)
+    ElementAgenda agenda = new ElementAgenda();//声明元素容器
+    SelectionSetManager.BuildAgenda(ref agenda);
+
+    if (agenda.GetCount() > 0)
+    {
+      var ids = new HashSet<string>();
+
+      for (uint i = 0; i < agenda.GetCount(); i++)
+      {
+        ids.Add(agenda.GetEntry(i).ElementId.ToString());
+      }
+
+      return new SelectionInfo(ids, $"{ids.Count} object{(ids.Count != 1 ? "s" : "")}");
+    }
+    else
     {
       return new SelectionInfo([], "No selection");
     }
-
-    var ids = new HashSet<string>();
-
-    // Prefer the targeted GetSelectedElements() API — only iterates currently-selected elements
-    // rather than scanning the entire model cache. Falls back to a full scan with IsHighlighted
-    // check on the off chance GetSelectedElements throws (some COM edge cases on transient state).
-    try
-    {
-      var selected = model.GetSelectedElements();
-      while (selected.MoveNext())
-      {
-        var element = selected.Current;
-        if (element != null)
-        {
-          ids.Add(element.ID.ToString());
-        }
-      }
-    }
-    catch (Exception ex) when (ex is not OutOfMemoryException and not StackOverflowException)
-    {
-      ids.Clear();
-      var enumerator = model.GraphicalElementCache.Scan(new MSIDGN.ElementScanCriteriaClass());
-      while (enumerator.MoveNext())
-      {
-        var element = enumerator.Current;
-        if (element?.IsHighlighted == true)
-        {
-          ids.Add(element.ID.ToString());
-        }
-      }
-    }
-
-    return new SelectionInfo(ids, $"{ids.Count} object{(ids.Count != 1 ? "s" : "")}");
   }
 
   // Order-independent hash so {1,2,3} and {3,2,1} produce the same fingerprint.
